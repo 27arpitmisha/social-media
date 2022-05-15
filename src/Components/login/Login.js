@@ -32,7 +32,8 @@ function Copyright(props) {
 export default function Login() {
     const navigate = useNavigate();
     const { login, googleAuthentication } = useAuth();
-    const loginHandler = async () => {
+    const loginHandler = async (e) => {
+        e.preventDefault();
         try {
             await login('test12@gmail.com', '123456');
             navigate('/home');
