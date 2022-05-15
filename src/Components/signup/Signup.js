@@ -6,9 +6,8 @@ export default function Signup() {
     const { signup } = useAuth();
     const signupHandle = async () => {
         try {
-            await signup('test@gmail.com', '123456')
+            await signup('test12@gmail.com', '123456', 'Mohan')
         } catch (error) {
-            console.log(error)
         }
     }
     return (

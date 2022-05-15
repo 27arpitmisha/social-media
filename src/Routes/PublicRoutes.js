@@ -12,7 +12,7 @@ export default function PublicRoutes() {
             <Routes>
                 <Route exact path='/login' element={<Login />} />
                 <Route path='/signup' element={<Signup />} />
-                <Route path='*' element={<ProtectedRoute />} />
+                <Route path='/home' element={<ProtectedRoute><Home/></ProtectedRoute>} />
             </Routes>
         </div>
     )
