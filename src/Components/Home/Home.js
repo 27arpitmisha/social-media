@@ -18,6 +18,8 @@ import Posts from '../Posts/Posts';
 import { TextField } from '@mui/material';
 import UserProfile from '../Profile/UserProfile';
 import APIKey from '../../Keys/API';
+import { Button } from '@mui/material'
+
 const drawerWidth = 240;
 export default function Home() {
     const { user, signOutUser } = useAuth();
@@ -72,6 +74,7 @@ export default function Home() {
         }
     }
     const fetchDisplayPanel = () => {
+        console.log(userInfo)
         if (toDisplay === 'Home') {
             return posts.map((post) => {
                 return <Posts props={post} />
@@ -101,6 +104,8 @@ export default function Home() {
         setIsSelf(false);
         setSerachSuggestion([]);
         setToDisplay('Profile');
+        // element.friends = [...userInfo.friends]
+        setUserInfo({ ...element, friends: [...userInfo.friends] })
     }
     return (
         <Box sx={{ display: 'flex' }}>
@@ -110,14 +115,14 @@ export default function Home() {
                     <Typography variant="h6" noWrap component="div">
                         Welcome, {userName}
                     </Typography>
-                    <TextField styles={{ margin: '20px' }} id="standard-basic" onChange={onChangeHandler} label="Search a friend" variant="standard" />
-                    <button onClick={signoutHandler}>Signout</button>
+                    <TextField style={{ marginLeft: '140px', width: '40%' }} id="standard-basic" onChange={onChangeHandler} label="Search a friend" variant="standard" />
+
+                    <Button style={{ marginLeft: '140px' }} varient="text" color="error" onClick={signoutHandler}>Signout</Button>
                 </Toolbar>
                 {
                     serachSuggestion.map(el => {
-                        return <li>
-                            <div onClick={onSearchUserClick.bind(this, el)}>{el.name}</div>
-                        </li>
+                        return <div onClick={onSearchUserClick.bind(this, el)}>{el.name}</div>
+
                     })
                 }
             </AppBar>
@@ -130,11 +135,12 @@ export default function Home() {
                 }}
             >
                 <Toolbar />
+
                 <Box sx={{ overflow: 'auto' }}>
                     <List>
                         {/* `Friends (${userInfo.friends?.length-1})` */}
                         {['Home', 'Profile', `Friends (${userInfo.friends?.length - 1})`, 'My Posts', 'Drafts'].map((text, index) => (
-                            <ListItem key={text} disablePadding onClick={() => { setToDisplay(text); setIsSelf(true); }}>
+                            <ListItem key={text} disablePadding onClick={() => { setToDisplay(text); setIsSelf(true); fetchUserData(); }}>
                                 <ListItemButton>
                                     <ListItemIcon>
                                         {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}
@@ -148,7 +154,9 @@ export default function Home() {
 
                 </Box>
             </Drawer>
+            {isSelf ? <Button varient="contained" color="success" onClick={signoutHandler}>Create Post</Button> : ''}
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+
                 <Toolbar />
                 {
                     fetchDisplayPanel()
