@@ -9,7 +9,7 @@ import { Divider, TextField } from '@mui/material';
 
 export default function Posts({ props }) {
     const [showComments, setShowComments] = useState(false)
- 
+
     return (
         <Card sx={{ maxWidth: 2045 }}>
             <CardMedia
@@ -39,7 +39,6 @@ export default function Posts({ props }) {
                         {comment}
                     </Typography>
                 })}
-
             </CardContent> : ''}
 
         </Card>

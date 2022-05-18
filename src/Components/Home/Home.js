@@ -17,12 +17,16 @@ import { useAuth } from '../../Context/UserAuthenticationContext'
 import Posts from '../Posts/Posts';
 import { TextField } from '@mui/material';
 import UserProfile from '../Profile/UserProfile';
+import APIKey from '../../Keys/API';
 const drawerWidth = 240;
 export default function Home() {
     const { user, signOutUser } = useAuth();
     const [userName, setUserName] = useState('');
+    const [userInfo, setUserInfo] = useState({})
     const [serachSuggestion, setSerachSuggestion] = useState([])
     const [toDisplay, setToDisplay] = useState('Home');
+    const [allUsers, setAllUsers] = useState([]);
+    const [isSelf, setIsSelf] = useState(false);
     const posts = [{ id: 1, image: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg', caption: 'Lizards are a widespread group of squamate reptiles, with over species, ranging across all continents except Antarctica', likesCount: 12, comments: ["Nice", "Good"] },
     { id: 1, image: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dmlld3xlbnwwfHwwfHw%3D&w=1000&q=80', caption: 'image (from Latin: imago) is an artifact that depicts visual perception, such as a photograph or other two-dimensional · picture, that resembles a subject—', likesCount: 17, comments: ["Nice", "Good", "wow"] },]
     const navigate = useNavigate();
@@ -33,7 +37,31 @@ export default function Home() {
         } else {
             setUserName(user?.email.split("@")[0]);
         }
+        fetchUserData();
     }, [])
+
+    const fetchUserData = async () => {
+        const response = await fetch(APIKey + '/usersInfo.json');
+        await response.json().then((data) => {
+            setAllUsers(data)
+            setUserInfo(fetchUserFromResponse(data));
+        });
+
+    }
+    let returnObject = {};
+    const fetchUserFromResponse = (data) => {
+        for (let key in data) {
+            if (typeof data[key] === 'object') {
+                fetchUserFromResponse(data[key])
+            } else {
+
+                if (data[key] === user.reloadUserInfo.localId) {
+                    returnObject = { ...data }
+                }
+            }
+        }
+        return returnObject
+    }
 
     const signoutHandler = async () => {
         try {
@@ -49,20 +77,30 @@ export default function Home() {
                 return <Posts props={post} />
             })
         } else if (toDisplay === 'Profile') {
-            return <UserProfile userName={userName} />
+            if (isSelf) {
+                return <UserProfile profileDetail={userInfo} isSelf={isSelf} />
+            } else {
+                return <UserProfile profileDetail={userInfo} isSelf={isSelf} />
+            }
         }
     }
 
     const onChangeHandler = (event) => {
         if (event.target.value !== '') {
-            const newList = friends.filter((el) => {
-                return el.startsWith(event.target.value)
+            const newList = Object.values(allUsers).filter((el) => {
+                return el.name.startsWith(event.target.value)
             })
 
             setSerachSuggestion([...newList]);
         } else {
             setSerachSuggestion([]);
         }
+    }
+
+    const onSearchUserClick = (element) => {
+        setIsSelf(false);
+        setSerachSuggestion([]);
+        setToDisplay('Profile');
     }
     return (
         <Box sx={{ display: 'flex' }}>
@@ -78,7 +116,7 @@ export default function Home() {
                 {
                     serachSuggestion.map(el => {
                         return <li>
-                            {el}
+                            <div onClick={onSearchUserClick.bind(this, el)}>{el.name}</div>
                         </li>
                     })
                 }
@@ -94,8 +132,9 @@ export default function Home() {
                 <Toolbar />
                 <Box sx={{ overflow: 'auto' }}>
                     <List>
-                        {['Home', 'Profile', 'Friends', 'My Posts', 'Drafts'].map((text, index) => (
-                            <ListItem key={text} disablePadding onClick={() => { setToDisplay(text) }}>
+                        {/* `Friends (${userInfo.friends?.length-1})` */}
+                        {['Home', 'Profile', `Friends (${userInfo.friends?.length - 1})`, 'My Posts', 'Drafts'].map((text, index) => (
+                            <ListItem key={text} disablePadding onClick={() => { setToDisplay(text); setIsSelf(true); }}>
                                 <ListItemButton>
                                     <ListItemIcon>
                                         {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}

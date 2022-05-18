@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../Context/UserAuthenticationContext';
 import GoogleButton from 'react-google-button';
@@ -14,113 +14,129 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Alert } from '@mui/material';
 
 function Copyright(props) {
-    return (
-      <Typography variant="body2" color="text.secondary" align="center" {...props}>
-        {'Copyright © '}
-        <Link color="inherit" href="https://mui.com/">
-          Your Website
-        </Link>{' '}
-        {new Date().getFullYear()}
-        {'.'}
-      </Typography>
-    );
-  }
-  
-  const theme = createTheme();
+  return (
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
+
+const theme = createTheme();
 export default function Login() {
-    const navigate = useNavigate();
-    const { login, googleAuthentication } = useAuth();
-    const loginHandler = async (e) => {
-        e.preventDefault();
-        try {
-            await login('test12@gmail.com', '123456');
-            navigate('/home');
-        } catch (e) {
-        }
-    }
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-    const googleLoginHandler = async () =>{
-        try {
-            await googleAuthentication();
-            navigate('/home');
-        } catch (e) {
-        }
+  const navigate = useNavigate();
+  const { login, googleAuthentication } = useAuth();
+  const loginHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      navigate('/home');
+    } catch (e) {
+      setError(e.message)
     }
-    return (
-        <ThemeProvider theme={theme}>
-        <Container component="main" maxWidth="xs">
-          <CssBaseline />
-          <Box
-            sx={{
-              marginTop: 8,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
-            </Typography>
-            <Box component="form" noValidate sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-              />
+  }
 
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                onClick={loginHandler}
-              >
-                Sign In
-              </Button>
-              
-              <Grid container>
-  
-                <Grid item onClick={() => { navigate('/signup') }}>
-                  <Link href="#" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
+  const googleLoginHandler = async () => {
+    try {
+      await googleAuthentication();
+      navigate('/home');
+    } catch (e) {
+    }
+  }
+  const onHandleChange = (event) => {
+    setError('')
+    if (event.target.name === 'email') {
+      setEmail(event.target.value);
+    } else {
+      setPassword(event.target.value);
+    }
+  }
+  return (
+    <ThemeProvider theme={theme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <Box component="form" noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              onChange={onHandleChange}
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              onChange={onHandleChange}
+              autoComplete="current-password"
+            />
+            {error ? <Alert stype={{ marginTop: '30px' }} severity="error">{error}</Alert> : ''}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={loginHandler}
+            >
+              Sign In
+            </Button>
+
+            <Grid container>
+
+              <Grid item onClick={() => { navigate('/signup') }}>
+                <Link href="#" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
               </Grid>
-            </Box>  
+            </Grid>
           </Box>
-          <GoogleButton style={{marginTop: '20px' }} onClick={googleLoginHandler}/>
-          <Copyright sx={{ mt: 8, mb: 4 }} />
-        </Container>
-      </ThemeProvider>
-        // <div>Login
-        //     <button onClick={loginHandler}>Login with test values</button>
-        //     <GoogleButton
-        //         onClick={googleLoginHandler}
-        //         // onSuccess={responseGoogle}
-        //         // onFailure={responseGoogle}
-        //         // cookiePolicy={'single_host_origin'}
-        //     />
-        //     <button onClick={() => { navigate('/signup') }}>Register</button>
-        // </div>
-    )
+        </Box>
+        <GoogleButton style={{ marginTop: '20px' }} onClick={googleLoginHandler} />
+        <Copyright sx={{ mt: 8, mb: 4 }} />
+      </Container>
+    </ThemeProvider>
+    // <div>Login
+    //     <button onClick={loginHandler}>Login with test values</button>
+    //     <GoogleButton
+    //         onClick={googleLoginHandler}
+    //         // onSuccess={responseGoogle}
+    //         // onFailure={responseGoogle}
+    //         // cookiePolicy={'single_host_origin'}
+    //     />
+    //     <button onClick={() => { navigate('/signup') }}>Register</button>
+    // </div>
+  )
 }
